@@ -1,0 +1,75 @@
+name: Build Nyvex Generation
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore NyvexGeneration.Tests/NyvexGeneration.Tests.csproj
+
+      - name: Build (Release)
+        run: dotnet build NyvexGeneration.Tests/NyvexGeneration.Tests.csproj -c Release --no-restore
+
+      - name: Run automated tests
+        run: dotnet test NyvexGeneration.Tests/NyvexGeneration.Tests.csproj -c Release --no-build --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+      - name: Publish standalone EXE (win-x64)
+        run: >
+          dotnet publish NyvexGeneration/NyvexGeneration.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -o publish/NyvexGeneration
+
+      - name: Create ZIP artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Compress-Archive -Path publish/NyvexGeneration/* -DestinationPath artifacts/NyvexGeneration-win-x64.zip -Force
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/*.trx
+          if-no-files-found: ignore
+
+      - name: Upload ZIP (download from the run page)
+        uses: actions/upload-artifact@v4
+        with:
+          name: NyvexGeneration-win-x64
+          path: artifacts/NyvexGeneration-win-x64.zip
+          if-no-files-found: error
+
+      - name: Attach ZIP to GitHub Release (tags v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/NyvexGeneration-win-x64.zip
