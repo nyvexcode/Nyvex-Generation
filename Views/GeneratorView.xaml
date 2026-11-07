@@ -1,0 +1,108 @@
+<UserControl x:Class="NyvexGeneration.Views.GeneratorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource PageEnter}" />
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
+
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Margin="0,0,20,0">
+            <StackPanel>
+                <TextBlock Style="{StaticResource TitleText}" Text="Gerador" />
+                <TextBlock Style="{StaticResource MutedText}" Margin="0,4,0,20"
+                           Text="Gere usernames únicos de 3 a 5 caracteres e consulte-os automaticamente." />
+
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionText}" Text="Comprimento total" />
+                        <ListBox Style="{StaticResource ChipListBox}" Margin="0,10,0,6"
+                                 ItemsSource="{Binding LengthOptions}"
+                                 SelectedItem="{Binding SelectedLength, Mode=TwoWay}"
+                                 ItemStringFormat="{}{0} caracteres" />
+
+                        <TextBlock Style="{StaticResource SectionText}" Text="Caracteres" Margin="0,8,0,0" />
+                        <ListBox Style="{StaticResource ChipListBox}" Margin="0,10,0,6"
+                                 ItemsSource="{Binding CharsetOptions}"
+                                 SelectedItem="{Binding SelectedCharset, Mode=TwoWay}"
+                                 DisplayMemberPath="Label" />
+
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Style="{StaticResource MutedText}" Text="Quantidade" Margin="0,0,0,6" />
+                                <TextBox Style="{StaticResource DarkTextBox}" Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource MutedText}" Text="Prefixo (opcional)" Margin="0,0,0,6" />
+                                <TextBox Style="{StaticResource DarkTextBox}" MaxLength="4" Text="{Binding Prefix, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Style="{StaticResource MutedText}" Text="Sufixo (opcional)" Margin="0,0,0,6" />
+                                <TextBox Style="{StaticResource DarkTextBox}" MaxLength="4" Text="{Binding Suffix, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Style="{StaticResource MutedText}" Text="Caracteres a excluir (ex.: 0o1l)" Margin="0,16,0,6" />
+                        <TextBox Style="{StaticResource DarkTextBox}" MaxLength="36"
+                                 Text="{Binding ExcludedCharacters, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <CheckBox Style="{StaticResource DarkCheckBox}" Margin="0,18,0,0"
+                                  Content="Consultar automaticamente após gerar"
+                                  IsChecked="{Binding AutoCheck, Mode=TwoWay}" />
+
+                        <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                            <Button Style="{StaticResource PrimaryButton}" Content="Gerar usernames"
+                                    Command="{Binding GenerateCommand}" />
+                            <Button Style="{StaticResource GhostButton}" Content="Cancelar consulta"
+                                    Command="{Binding CancelCheckCommand}"
+                                    Visibility="{Binding IsChecking, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+
+                        <TextBlock Style="{StaticResource MutedText}" Margin="0,14,0,0" Text="{Binding StatusMessage}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Column="1" Style="{StaticResource CardBorder}" Padding="16">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                    <TextBlock Style="{StaticResource SectionText}" VerticalAlignment="Center" Text="Histórico de geração" />
+                    <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Right" Margin="0"
+                            Padding="12,6" Content="Limpar" Command="{Binding ClearHistoryCommand}" />
+                </Grid>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding History}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3">
+                                    <TextBlock FontFamily="Consolas" FontSize="14" Text="{Binding Username}" />
+                                    <TextBlock Style="{StaticResource MutedText}" HorizontalAlignment="Right"
+                                               Text="{Binding GeneratedAt, StringFormat='dd/MM HH:mm'}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,134 @@
+<UserControl x:Class="NyvexGeneration.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource PageEnter}" />
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="860" HorizontalAlignment="Left">
+            <TextBlock Style="{StaticResource TitleText}" Text="Configurações" />
+            <TextBlock Style="{StaticResource MutedText}" Margin="0,4,0,20"
+                       Text="Preferências do aplicativo. Clique em Salvar para aplicar e gravar." />
+
+            <!-- Aparência -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SectionText}" Text="Tema" />
+                    <ListBox Style="{StaticResource ChipListBox}" Margin="0,10,0,0"
+                             ItemsSource="{Binding Themes}"
+                             SelectedItem="{Binding SelectedTheme, Mode=TwoWay}"
+                             DisplayMemberPath="Label" />
+                </StackPanel>
+            </Border>
+
+            <!-- Geração -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SectionText}" Text="Geração" />
+
+                    <TextBlock Style="{StaticResource MutedText}" Text="Comprimento padrão" Margin="0,12,0,0" />
+                    <ListBox Style="{StaticResource ChipListBox}" Margin="0,8,0,0"
+                             ItemsSource="{Binding LengthOptions}"
+                             SelectedItem="{Binding DefaultLength, Mode=TwoWay}"
+                             ItemStringFormat="{}{0} caracteres" />
+
+                    <TextBlock Style="{StaticResource MutedText}" Text="Quantidade padrão (1 a 5000)" Margin="0,4,0,6" />
+                    <TextBox Style="{StaticResource DarkTextBox}" Width="160" HorizontalAlignment="Left"
+                             Text="{Binding DefaultQuantityText, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <CheckBox Style="{StaticResource DarkCheckBox}" Margin="0,14,0,0"
+                              Content="Consultar automaticamente após gerar"
+                              IsChecked="{Binding AutoCheck, Mode=TwoWay}" />
+                    <CheckBox Style="{StaticResource DarkCheckBox}"
+                              Content="Evitar usernames já gerados anteriormente"
+                              IsChecked="{Binding AvoidPreviouslyGenerated, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Consultas -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SectionText}" Text="Consultas" />
+                    <TextBlock Style="{StaticResource MutedText}" Margin="0,6,0,12"
+                               Text="Intervalos conservadores reduzem o risco de HTTP 429. Valores fora dos limites são ajustados ao salvar." />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
+                            <TextBlock Style="{StaticResource MutedText}" Text="Intervalo entre lotes (ms, 500 a 60000)" Margin="0,0,0,6" />
+                            <TextBox Style="{StaticResource DarkTextBox}" Text="{Binding DelayText, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,12">
+                            <TextBlock Style="{StaticResource MutedText}" Text="Tamanho do lote (1 a 100)" Margin="0,0,0,6" />
+                            <TextBox Style="{StaticResource DarkTextBox}" Text="{Binding BatchSizeText, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="0">
+                            <TextBlock Style="{StaticResource MutedText}" Text="Timeout por requisição (s, 5 a 120)" Margin="0,0,0,6" />
+                            <TextBox Style="{StaticResource DarkTextBox}" Text="{Binding TimeoutText, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="2">
+                            <TextBlock Style="{StaticResource MutedText}" Text="Tentativas após HTTP 429 (0 a 10)" Margin="0,0,0,6" />
+                            <TextBox Style="{StaticResource DarkTextBox}" Text="{Binding RetriesText, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Exportação -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SectionText}" Text="Exportação" />
+                    <TextBlock Style="{StaticResource MutedText}" Margin="0,6,0,0" Text="Separador do CSV (Excel em português costuma usar ponto e vírgula)" />
+                    <ListBox Style="{StaticResource ChipListBox}" Margin="0,10,0,0"
+                             ItemsSource="{Binding Delimiters}"
+                             SelectedItem="{Binding SelectedDelimiter, Mode=TwoWay}"
+                             DisplayMemberPath="Label" />
+                </StackPanel>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Button Style="{StaticResource PrimaryButton}" Content="Salvar configurações" Command="{Binding SaveCommand}" />
+                <Button Style="{StaticResource GhostButton}" Content="Restaurar padrões" Command="{Binding RestoreDefaultsCommand}" />
+            </StackPanel>
+
+            <!-- Dados -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SectionText}" Text="Dados e backup" />
+                    <TextBlock Style="{StaticResource MutedText}" Margin="0,6,0,0" Text="{Binding DatabasePath, StringFormat='Banco local: {0}'}" />
+
+                    <WrapPanel Margin="0,14,0,0">
+                        <Button Style="{StaticResource GhostButton}" Content="Fazer backup do banco" Command="{Binding BackupCommand}" Margin="0,0,8,8" />
+                        <Button Style="{StaticResource GhostButton}" Content="Abrir pasta de dados" Command="{Binding OpenDataFolderCommand}" Margin="0,0,8,8" />
+                    </WrapPanel>
+
+                    <TextBlock Style="{StaticResource MutedText}" Margin="0,8,0,8" Text="Limpeza (ação permanente, pede confirmação):" />
+                    <WrapPanel>
+                        <Button Style="{StaticResource DangerButton}" Content="Limpar histórico de geração" Command="{Binding ClearGenerationHistoryCommand}" Margin="0,0,8,8" />
+                        <Button Style="{StaticResource DangerButton}" Content="Limpar histórico de consultas" Command="{Binding ClearLookupHistoryCommand}" Margin="0,0,8,8" />
+                        <Button Style="{StaticResource DangerButton}" Content="Limpar favoritos" Command="{Binding ClearFavoritesCommand}" Margin="0,0,8,8" />
+                        <Button Style="{StaticResource DangerButton}" Content="Limpar estatísticas" Command="{Binding ClearStatsCommand}" Margin="0,0,8,8" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Style="{StaticResource MutedText}" Margin="2,0,0,24" Text="{Binding StatusMessage}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
